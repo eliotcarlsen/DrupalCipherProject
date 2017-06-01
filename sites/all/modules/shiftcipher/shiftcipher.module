@@ -1,0 +1,60 @@
+<?php
+function shiftcipher_menu(){
+    $items['shiftcipher'] = array(
+        'title' => 'Shift Cipher',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('shiftcipher_form'),
+        'access callback' => TRUE,
+        'type' => MENU_NORMAL_ITEM,
+    );
+    $items['encoded_success_page'] = array(
+      'title' => 'Encoded Message',
+      'page callback' => 'encode_success',
+      'access callback' => TRUE,
+      'type' => MENU_CALLBACK,
+    );
+    return $items;
+}
+function shiftcipher_form(){
+    $form['shiftvalue'] = array(
+        '#title' => 'Shift Value',
+        '#description' => "Enter the number of places you'd like your phrase to shift.",
+        '#type' => 'textfield',
+        '#element_validate' => array('element_validate_integer_positive'),
+        '#required' => TRUE,
+    );
+    $form['direction'] = array(
+        '#title' => 'Direction',
+        '#description' => "Enter the direction you'd like your phrase to shift.",
+        '#type' => 'textfield',
+        '#element_validate' => array('element_validate_direction'),
+        '#required' => TRUE,
+    );
+    $form['phrase'] = array(
+        '#title' => 'Phrase',
+        '#description' => "Enter the phrase you'd like turned into a cipher.",
+        '#type' => 'textfield',
+        '#element_validate' => array('element_validate_phrase'),
+        '#required' => TRUE,
+    );
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Go',
+    );
+    return $form;
+}
+function element_validate_direction($element){
+    if (((strtolower($element['#value']) != 'right')  && (strtolower($element['#value']) != 'left'))){
+        form_error($element, t('You must either put "left" or "right" for the direction.'));
+    }
+}
+function element_validate_phrase($element){
+
+}
+function shiftcipher_form_submit($form, &$form_state){
+    $_SESSION['phrase'] = strtolower($form_state['values']['phrase']);
+    $form_state['redirect'] = 'encoded_success_page';
+}
+function encode_success(){
+  return 'Here is your secret encoded message...' . $_SESSION['phrase'];
+}

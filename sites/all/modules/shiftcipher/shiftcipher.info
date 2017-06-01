@@ -1,0 +1,5 @@
+name = Shift Cipher
+description = Encryption Tool
+package = Cipher Module
+core = 7.x
+files[] = shiftcipher.module
