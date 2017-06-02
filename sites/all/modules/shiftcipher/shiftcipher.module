@@ -49,14 +49,49 @@ function element_validate_direction($element){
     }
 }
 function element_validate_phrase($element){
-    $result = preg_match("/[@#$^~``*&+[]/",$element['#value'], $matches);
+    $result = preg_match("/[@#^~``*&+[]/",$element['#value'], $matches);
     if ($result > 0){
         form_error($element, t('You must enter a valid sentence with proper punctuation.'));
     }
 }
 function shiftcipher_form_submit($form, &$form_state){
-    $_SESSION['phrase'] = strtolower($form_state['values']['phrase']);
-    $form_state['redirect'] = 'encoded_success_page';
+    $dictionary = 'abcdefghijklmnopqrstuvwxyz';
+    $dictionary2 = 'zyxwvutsrqponmlkjihgfedcba';
+
+    $_SESSION['phrase'] = "";
+    $phrase = $form_state['values']['phrase'];
+    if($form_state['values']['direction'] === 'left'){
+        for ($i = 0, $length = strlen($phrase); $i < $length; $i++){
+            $position = strpos($dictionary, $phrase[$i]) - $form_state['values']['shiftvalue'];
+            if ($position < 0){
+                $_SESSION['phrase'] .= $dictionary2[abs($position) - 1];
+            } else {
+                $_SESSION['phrase'] .= $dictionary[$position];
+            }
+            $form_state['redirect'] = 'encoded_success_page';
+        }
+    } else {
+      for ($i = 0, $length = strlen($phrase); $i < $length; $i++){
+          $position = strpos($dictionary, $phrase[$i]) + $form_state['values']['shiftvalue'];
+          if ($position > 25){
+              $new_position = ($position % 26);
+              $_SESSION['phrase'] .= $dictionary[$new_position];
+          } else {
+              $_SESSION['phrase'] .= $dictionary[$position];
+          }
+          $form_state['redirect'] = 'encoded_success_page';
+      }
+    }
+    // if($form_state['values']['direction'] === 'right'){
+    //   foreach(str_split($phrase) as $character){
+    //     $_SESSION['phrase'] .= chr(ord($character) + $form_state['values']['shiftvalue']);
+    //   }
+    // } else {
+    //   foreach(str_split($phrase) as $character){
+    //     $_SESSION['phrase'] .= chr(ord($character) - $form_state['values']['shiftvalue']);
+    //   }
+    // }
+    // $form_state['redirect'] = 'encoded_success_page';
 }
 function encode_success(){
   return 'Here is your secret encoded message...' . $_SESSION['phrase'];
